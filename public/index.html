@@ -163,15 +163,25 @@
         </div>
     </aside>
 
-    <!-- Área do Mapa -->
+    <!-- Área do Mapa Profissional -->
     <main class="flex-1 h-[50vh] md:h-screen relative bg-slate-900">
         <div id="map" class="w-full h-full"></div>
 
+        <!-- Botões de Estilo do Mapa -->
+        <div class="absolute top-5 right-5 z-[1000] bg-space-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 flex gap-1 text-xs">
+            <button id="mapStyleDark" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-space-900 font-bold transition">Escuro</button>
+            <button id="mapStyleLight" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold transition">Claro</button>
+            <button id="mapStyleSat" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white font-bold transition">Satélite</button>
+        </div>
+
         <!-- Card de Corrida em Andamento -->
-        <div id="driverStatusCard" class="hidden absolute top-5 left-5 right-5 md:left-auto md:right-5 md:w-96 bg-space-900/95 backdrop-blur-md p-5 rounded-2xl border border-emerald-500/40 shadow-2xl z-[1000] space-y-4">
+        <div id="driverStatusCard" class="hidden absolute bottom-5 left-5 right-5 md:left-auto md:right-5 md:w-96 bg-space-900/95 backdrop-blur-md p-5 rounded-2xl border border-emerald-500/40 shadow-2xl z-[1000] space-y-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Motorista a Caminho</div>
+                    <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-verde-neon animate-ping"></span>
+                        <span id="tripStatusLabel">Motorista a Caminho</span>
+                    </div>
                     <div class="text-xl font-extrabold text-white">Carlos Silva 🛡️</div>
                     <div id="statusCarModel" class="text-xs text-slate-300 font-bold">BYD Dolphin Mini • ABC-4E20</div>
                 </div>
@@ -192,11 +202,11 @@
 
             <div class="space-y-1">
                 <div class="flex justify-between text-xs text-slate-400">
-                    <span>Chegada em</span>
-                    <span id="etaTimer" class="text-verde-neon font-bold">3 min</span>
+                    <span>Progresso da Viagem</span>
+                    <span id="etaTimer" class="text-verde-neon font-bold">Em movimento</span>
                 </div>
                 <div class="w-full bg-slate-800 rounded-full h-2">
-                    <div id="progressBar" class="bg-emerald-400 h-2 rounded-full transition-all duration-1000" style="width: 25%"></div>
+                    <div id="progressBar" class="bg-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
             </div>
 
