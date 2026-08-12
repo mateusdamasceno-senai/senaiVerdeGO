@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 0. Gerador de Som Web Audio API (Feedback Sonoro)
+    // 0. Feedback Sonoro Native Web Audio API
     function playAudioTone(freq = 600, duration = 0.1) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e){}
     }
 
-    // 1. Contador Vivo de CO2 Global
+    // 1. Contador de CO2 Global
     let currentCo2 = 14829.4;
     const globalCo2Counter = document.getElementById('globalCo2Counter');
     setInterval(() => {
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(globalCo2Counter) globalCo2Counter.textContent = currentCo2.toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' kg';
     }, 2500);
 
-    // 2. Mapa Leaflet + Animação dos Carrinhos
+    // 2. Mapa Leaflet + Carros Animados
     const map = L.map('map', { zoomControl: false }).setView([-23.561684, -46.655981], 14);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     let userMarker = L.marker([-23.561684, -46.655981], { icon: userIcon }).addTo(map);
 
-    // Carros animados no mapa
     const carIcon = L.divIcon({
         className: 'custom-car-pin',
         html: `<div style="font-size: 22px;">⚡🚗</div>`
@@ -50,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         c.marker = L.marker([c.lat, c.lng], { icon: carIcon }).addTo(map);
     });
 
-    // Mover os carros aleatoriamente a cada 3 segundos
     setInterval(() => {
         liveCars.forEach(c => {
             c.lat += (Math.random() - 0.5) * 0.002;
@@ -59,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, 3000);
 
-    // 3. Autocomplete de Endereço Real via Nominatim API
+    // 3. Autocomplete e Cálculo de Rota Real
     const destInput = document.getElementById('destInput');
     const autocompleteList = document.getElementById('autocompleteList');
     const tripDistance = document.getElementById('tripDistance');
@@ -89,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             destInput.value = item.display_name.split(',')[0];
                             autocompleteList.classList.add('hidden');
                             
-                            // Atualizar local e rota no Mapa
                             const destLat = parseFloat(item.lat);
                             const destLon = parseFloat(item.lon);
                             
@@ -99,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             routePolyline = L.polyline([[originCoords.lat, originCoords.lng], [destLat, destLon]], { color: '#00FF66', weight: 4, dashArray: '8, 8' }).addTo(map);
                             map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
 
-                            // Recalcular Distância e Preços
                             currentDistanceKm = (originCoords.distanceTo([destLat, destLon]) / 1000).toFixed(1);
                             if (currentDistanceKm < 1) currentDistanceKm = 1.5;
                             tripDistance.textContent = `${currentDistanceKm} km`;
@@ -114,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. Seleção de Categoria e Ficha do Veículo
+    // 4. Categorias e Dados Dinâmicos
     const rideOptions = document.querySelectorAll('.ride-option');
     const requestRideBtn = document.getElementById('requestRideBtn');
     const previewCarImg = document.getElementById('previewCarImg');
@@ -126,7 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
         name: "VerdeGO Go",
         price: "24,60",
         model: "BYD Dolphin Mini",
-        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80"
+        spec: "100% Elétrico • Hatch Compacto",
+        battery: "92%",
+        autonomia: "280km",
+        img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80",
+        interior: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80"
     };
 
     function updatePrices() {
@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const battery = opt.getAttribute('data-battery');
             const autonomia = opt.getAttribute('data-autonomia');
             const img = opt.getAttribute('data-img');
+            const interior = opt.getAttribute('data-interior');
             const catName = opt.querySelector('.font-bold').textContent;
             const price = opt.querySelector('.price-tag').textContent;
 
@@ -168,11 +169,48 @@ document.addEventListener('DOMContentLoaded', () => {
             previewBattery.textContent = `🔋 Bateria: ${battery} • Autonomia: ${autonomia}`;
             requestRideBtn.textContent = `Confirmar ${catName} • ${price}`;
 
-            selectedCategory = { name: catName, price, model, img };
+            selectedCategory = { name: catName, price, model, spec, battery, autonomia, img, interior };
         });
     });
 
-    // 5. Alternador Pessoal / B2B
+    // 5. Modal Visualizador 360° do Veículo
+    const car360Modal = document.getElementById('car360Modal');
+    const openCar360Btn = document.getElementById('openCar360Btn');
+    const closeCar360Modal = document.getElementById('closeCar360Modal');
+    const closeCar360ModalBtn = document.getElementById('closeCar360ModalBtn');
+    const modalCarTitle = document.getElementById('modalCarTitle');
+    const modalExtImg = document.getElementById('modalExtImg');
+    const modalIntImg = document.getElementById('modalIntImg');
+    const modalBattery = document.getElementById('modalBattery');
+    const modalSpec = document.getElementById('modalSpec');
+
+    if(openCar360Btn && car360Modal) {
+        openCar360Btn.addEventListener('click', () => {
+            playAudioTone(750, 0.1);
+            modalCarTitle.textContent = `Ficha Técnica - ${selectedCategory.model}`;
+            modalExtImg.src = selectedCategory.img;
+            modalIntImg.src = selectedCategory.interior;
+            modalBattery.textContent = `${selectedCategory.battery} (${selectedCategory.autonomia})`;
+            modalSpec.textContent = selectedCategory.spec;
+            car360Modal.classList.remove('hidden');
+        });
+
+        const hide360 = () => car360Modal.classList.add('hidden');
+        closeCar360Modal.addEventListener('click', hide360);
+        closeCar360ModalBtn.addEventListener('click', hide360);
+    }
+
+    // 6. Compartilhar Rota
+    const shareTripBtn = document.getElementById('shareTripBtn');
+    if(shareTripBtn) {
+        shareTripBtn.addEventListener('click', () => {
+            playAudioTone(850, 0.1);
+            navigator.clipboard.writeText(window.location.href);
+            alert('🔗 Link de acompanhamento da rota copiado para a área de transferência! Envie para sua família.');
+        });
+    }
+
+    // 7. Alternador B2B
     const btnProfilePersonal = document.getElementById('btnProfilePersonal');
     const btnProfileB2B = document.getElementById('btnProfileB2B');
 
@@ -183,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnProfileB2B.classList.remove('text-slate-400');
             btnProfilePersonal.classList.remove('bg-emerald-500', 'text-space-900');
             btnProfilePersonal.classList.add('text-slate-400');
-            alert('Modo Corporativo Ativado: Faturamento automático via VerdeGO Business para relatórios ESG da sua empresa.');
+            alert('💼 Modo Corporativo Ativado: Faturamento automático via VerdeGO Business com emissão de relatório de sustentabilidade ESG.');
         });
         btnProfilePersonal.addEventListener('click', () => {
             playAudioTone(400, 0.1);
@@ -194,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 6. Solicitação e Animação da Corrida
+    // 8. Solicitação de Corrida
     const driverStatusCard = document.getElementById('driverStatusCard');
     const statusCarModel = document.getElementById('statusCarModel');
     const statusCarImg = document.getElementById('statusCarImg');
@@ -213,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
             statusCarImg.src = selectedCategory.img;
             driverStatusCard.classList.remove('hidden');
 
-            // Animação da Barra de Progresso
             let prog = 20;
             const timer = setInterval(() => {
                 prog += 20;
@@ -228,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         requestRideBtn.textContent = `Confirmar ${selectedCategory.name} • ${selectedCategory.price}`;
     });
 
-    // 7. Chat Humano Interativo
+    // 9. Chat Humano Interativo
     const supportModal = document.getElementById('supportModal');
     const openSupportBtn = document.getElementById('openSupportBtn');
     const closeSupportModal = document.getElementById('closeSupportModal');
@@ -257,14 +294,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 playAudioTone(1000, 0.1);
                 const aMsg = document.createElement('div');
                 aMsg.className = "bg-emerald-950/60 border border-emerald-500/30 p-2.5 rounded-xl text-slate-200";
-                aMsg.innerHTML = `<span class="text-emerald-400 font-bold block mb-0.5">Atendente Gabriel</span>"Perfeito! Estou monitorando seu percurso com telemetria ADAS em tempo real."`;
+                aMsg.innerHTML = `<span class="text-emerald-400 font-bold block mb-0.5">Atendente Gabriel</span>"Perfeito! Estou acompanhando sua chamada com suporte ADAS e telemetria ao vivo."`;
                 chatHistory.appendChild(aMsg);
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }, 1000);
         });
     }
 
-    // 8. Modo Acessibilidade
+    // 10. Acessibilidade
     const toggleSimpleModeBtn = document.getElementById('toggleSimpleMode');
     if(toggleSimpleModeBtn) {
         toggleSimpleModeBtn.addEventListener('click', () => document.body.classList.toggle('modo-simples'));
