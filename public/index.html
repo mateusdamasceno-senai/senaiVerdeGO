@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <!-- Ficha 360° do Veículo Selecionado -->
+            <!-- Card/Preview do Veículo Selecionado + Botão para Ver Detalhes 360° -->
             <div id="selectedCarPreview" class="bg-space-800 p-3 rounded-xl border border-emerald-500/40 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <img id="previewCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-20 h-14 object-cover rounded-lg border border-slate-700" alt="Carro">
@@ -78,9 +78,12 @@
                         <div id="previewBattery" class="text-[10px] text-verde-neon font-mono mt-0.5">🔋 Bateria: 92% • Autonomia: 280km</div>
                     </div>
                 </div>
+                <button id="openCar360Btn" class="bg-emerald-950 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[11px] px-2.5 py-1.5 rounded-lg font-bold shrink-0 transition">
+                    🔍 Detalhes 360°
+                </button>
             </div>
 
-            <!-- Lista de Categorias Estilo Uber -->
+            <!-- Lista de Categorias -->
             <div class="space-y-2">
                 <div class="text-xs uppercase tracking-wider text-slate-400 font-bold px-1 flex justify-between">
                     <span>Escolha a Categoria</span>
@@ -88,7 +91,7 @@
                 </div>
                 <div class="space-y-2" id="rideList">
                     
-                    <div data-cat="go" data-base="12.00" data-perkm="3.00" data-model="BYD Dolphin Mini" data-spec="100% Elétrico • Hatch Compacto" data-battery="92%" data-autonomia="280km" data-img="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="ride-option active flex items-center justify-between p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
+                    <div data-cat="go" data-base="12.00" data-perkm="3.00" data-model="BYD Dolphin Mini" data-spec="100% Elétrico • Hatch Compacto" data-battery="92%" data-autonomia="280km" data-img="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" data-interior="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80" class="ride-option active flex items-center justify-between p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">🚗</span>
                             <div>
@@ -101,7 +104,7 @@
                         </div>
                     </div>
 
-                    <div data-cat="shield" data-base="18.00" data-perkm="4.50" data-model="BYD Yuan Plus (SUV)" data-spec="Sensores ADAS • 5 Estrelas Crash Test" data-battery="88%" data-autonomia="380km" data-img="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="shield" data-base="18.00" data-perkm="4.50" data-model="BYD Yuan Plus (SUV)" data-spec="Sensores ADAS • 5 Estrelas Crash Test" data-battery="88%" data-autonomia="380km" data-img="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=300&q=80" data-interior="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=600&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">🛡️</span>
                             <div>
@@ -114,7 +117,7 @@
                         </div>
                     </div>
 
-                    <div data-cat="exec" data-base="25.00" data-perkm="6.50" data-model="BMW iX / Volvo XC40" data-spec="Premium Executive • Silêncio Absoluto" data-battery="95%" data-autonomia="420km" data-img="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="exec" data-base="25.00" data-perkm="6.50" data-model="BMW iX / Volvo XC40" data-spec="Premium Executive • Silêncio Absoluto" data-battery="95%" data-autonomia="420km" data-img="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=300&q=80" data-interior="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">💼</span>
                             <div>
@@ -127,7 +130,7 @@
                         </div>
                     </div>
 
-                    <div data-cat="pet" data-base="15.00" data-perkm="4.00" data-model="Hyundai Kona Pet Eco" data-spec="Capas Higiênicas • Cinto Pet" data-battery="85%" data-autonomia="310km" data-img="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="pet" data-base="15.00" data-perkm="4.00" data-model="Hyundai Kona Pet Eco" data-spec="Capas Higiênicas • Cinto Pet" data-battery="85%" data-autonomia="310km" data-img="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80" data-interior="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">🐾</span>
                             <div>
@@ -153,7 +156,9 @@
                 <button id="openSupportBtn" class="flex items-center gap-1 hover:text-emerald-400">
                     <span class="w-2 h-2 rounded-full bg-verde-neon animate-pulse"></span> Apoio Humano (< 1 min)
                 </button>
-                <button id="shareTripBtn" class="hover:text-emerald-400">🔗 Compartilhar Rota</button>
+                <button id="shareTripBtn" class="hover:text-emerald-400 font-semibold flex items-center gap-1">
+                    🔗 Compartilhar Rota
+                </button>
             </div>
         </div>
     </aside>
@@ -173,7 +178,18 @@
                 <img id="statusCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-16 h-12 object-cover rounded-lg border border-slate-700" alt="Carro">
             </div>
 
-            <!-- Progresso da Corrida -->
+            <!-- Telemetria & Progresso -->
+            <div class="bg-space-800 p-2.5 rounded-xl border border-slate-700 text-xs space-y-2">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Sensores ADAS</span>
+                    <span class="text-emerald-400 font-bold">🟢 Ativos (Segurança 100%)</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Emissão de Carbono</span>
+                    <span class="text-verde-neon font-bold">0 g/km (100% Elétrico)</span>
+                </div>
+            </div>
+
             <div class="space-y-1">
                 <div class="flex justify-between text-xs text-slate-400">
                     <span>Chegada em</span>
@@ -190,7 +206,38 @@
         </div>
     </main>
 
-    <!-- Modal Atendimento Humano Interativo -->
+    <!-- Modal 1: Galeria & Visualizador 360° do Veículo -->
+    <div id="car360Modal" class="fixed inset-0 bg-space-900/80 backdrop-blur-sm z-[2000] hidden flex items-center justify-center p-4">
+        <div class="bg-space-800 border border-emerald-500/40 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 id="modalCarTitle" class="font-bold text-emerald-400 text-lg">Detalhes do Veículo - BYD Dolphin</h3>
+                <button id="closeCar360Modal" class="text-slate-400 hover:text-slate-200">✕</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <div class="text-xs text-slate-400 mb-1 font-bold">Exterior do Veículo</div>
+                    <img id="modalExtImg" src="" class="w-full car-gallery-img border border-slate-700" alt="Exterior">
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 mb-1 font-bold">Interior & Conforto</div>
+                    <img id="modalIntImg" src="" class="w-full car-gallery-img border border-slate-700" alt="Interior">
+                </div>
+            </div>
+
+            <div class="bg-space-900 p-3 rounded-xl border border-slate-700/80 text-xs space-y-1.5">
+                <div class="flex justify-between"><span class="text-slate-400">Autonomia da Bateria:</span><span id="modalBattery" class="text-emerald-400 font-bold">92% (280 km)</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Nível de Ruído Interno:</span><span class="text-slate-200 font-bold">Silencioso (Zero Motor a Combustão)</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Segurança Ativa:</span><span id="modalSpec" class="text-slate-200 font-bold">ADAS Frenagem Automática</span></div>
+            </div>
+
+            <button id="closeCar360ModalBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-space-900 font-bold py-2.5 rounded-xl text-sm">
+                Voltar para Seleção
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 2: Atendimento Humano Interativo -->
     <div id="supportModal" class="fixed inset-0 bg-space-900/80 backdrop-blur-sm z-[2000] hidden flex items-center justify-center p-4">
         <div class="bg-space-800 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
@@ -204,7 +251,7 @@
             <div id="chatHistory" class="space-y-3 h-60 overflow-y-auto p-2 bg-space-900 rounded-xl border border-slate-800 text-xs">
                 <div class="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-xl text-slate-200">
                     <span class="text-emerald-400 font-bold block mb-1">Atendente Gabriel</span>
-                    "Olá! Estou acompanhando sua chamada ao vivo. Como posso te auxiliar agora?"
+                    "Olá! Sou do atendimento humano presencial da VerdeGO!. Como posso te auxiliar na sua corrida agora?"
                 </div>
             </div>
 
