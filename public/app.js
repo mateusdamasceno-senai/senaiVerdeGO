@@ -1,105 +1,106 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Inicialização do Mapa (Leaflet JS - Estilo Dark Uber)
+    const map = L.map('map', {
+        zoomControl: false
+    }).setView([-23.561684, -46.655981], 14); // Posição Inicial: Av. Paulista (São Paulo)
 
-    // 1. Dados e Seletor de Categorias
-    const categoryData = {
-        go: {
-            title: "VerdeGO Go",
-            persona: "Persona: Jairo",
-            desc: "Foco em economia de até 5x por km rodado, agilidade e máxima eficiência sustentável para seus deslocamentos diários.",
-            specs: ["✓ Hatch elétrico compacto e ágil", "✓ Economia máxima no dia a dia", "✓ Emissão zero de poluentes"],
-            price: "R$ 1,80 / km"
-        },
-        shield: {
-            title: "VerdeGO Shield",
-            persona: "Persona: Célia",
-            desc: "SUVs espaçosos com sensores ADAS ativos, oferecendo o máximo de segurança para famílias, idosos e mulheres.",
-            specs: ["✓ SUV elétrico amplo com 5 estrelas em crash-test", "✓ Sensores ADAS ativados em tempo real", "✓ Motoristas com verificação de antecedentes avançada"],
-            price: "R$ 2,50 / km"
-        },
-        exec: {
-            title: "VerdeGO Executive",
-            persona: "Persona: Otávio",
-            desc: "Sedans e SUVs de alto padrão (BMW iX, Volvo XC40) com silêncio absoluto para reuniões e máximo conforto corporativo.",
-            specs: ["✓ Veículos Premium de alta performance", "✓ Isolamento acústico avançado para chamadas", "✓ Wi-Fi a bordo e carregadores ultra-rápidos"],
-            price: "R$ 4,20 / km"
-        },
-        pet: {
-            title: "VerdeGO Pet & Eco",
-            persona: "Persona: Alisson",
-            desc: "Veículos equipados com capas higiênicas, cinto de segurança pet e total preparação para transportá-lo junto ao seu melhor amigo.",
-            specs: ["✓ Equipamentos de proteção higiênica pet", "✓ Motoristas Pet-Friendly certificados", "✓ Espaço adaptado para caixas de transporte"],
-            price: "R$ 2,90 / km"
-        }
+    // Camada de Mapa Estilo Dark
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    // Marcador de Origem (Usuário)
+    const userIcon = L.divIcon({
+        className: 'custom-user-pin',
+        html: `<div style="background-color: #10B981; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #00FF66; box-shadow: 0 0 10px #00FF66;"></div>`,
+        iconSize: [16, 16]
+    });
+    const userMarker = L.marker([-23.561684, -46.655981], { icon: userIcon }).addTo(map);
+
+    // Marcadores de Carros Elétricos VerdeGO Próximos Simulados
+    const cars = [
+        { lat: -23.5590, lng: -46.6580, title: "Hatch Elétrico" },
+        { lat: -23.5640, lng: -46.6520, title: "SUV Shield" },
+        { lat: -23.5600, lng: -46.6510, title: "Executive BMW" }
+    ];
+
+    const carIcon = L.divIcon({
+        className: 'custom-car-pin',
+        html: `<div style="font-size: 20px;">⚡🚗</div>`,
+        iconSize: [24, 24]
+    });
+
+    cars.forEach(car => {
+        L.marker([car.lat, car.lng], { icon: carIcon }).addTo(map);
+    });
+
+    // 2. Seleção de Categoria e Atualização de Preço
+    const rideOptions = document.querySelectorAll('.ride-option');
+    const requestRideBtn = document.getElementById('requestRideBtn');
+    const co2RideSave = document.getElementById('co2RideSave');
+
+    const co2Map = {
+        go: "1.8 kg",
+        shield: "2.4 kg",
+        exec: "3.1 kg",
+        pet: "2.2 kg"
     };
 
-    const categoryButtons = document.querySelectorAll('.cat-btn');
-    const catTitle = document.getElementById('catTitle');
-    const catBadge = document.getElementById('catBadge');
-    const catDesc = document.getElementById('catDesc');
-    const catSpecs = document.getElementById('catSpecs');
-    const catPrice = document.getElementById('catPrice');
-
-    categoryButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            categoryButtons.forEach(b => {
-                b.classList.remove('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-300');
-                b.classList.add('bg-space-800', 'border-slate-700', 'text-slate-300');
+    rideOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            rideOptions.forEach(o => {
+                o.classList.remove('active', 'border-2', 'border-emerald-500', 'bg-emerald-950/30');
+                o.classList.add('border', 'border-slate-800', 'bg-space-800/80');
             });
 
-            btn.classList.remove('bg-space-800', 'border-slate-700', 'text-slate-300');
-            btn.classList.add('bg-emerald-900/60', 'border-emerald-500', 'text-emerald-300');
+            option.classList.remove('border', 'border-slate-800', 'bg-space-800/80');
+            option.classList.add('active', 'border-2', 'border-emerald-500', 'bg-emerald-950/30');
 
-            const catKey = btn.getAttribute('data-cat');
-            const data = categoryData[catKey];
+            const cat = option.getAttribute('data-cat');
+            const price = option.getAttribute('data-price');
+            const catName = option.querySelector('.font-bold').childNodes[0].textContent.trim();
 
-            if (data) {
-                catTitle.textContent = data.title;
-                catBadge.textContent = data.persona;
-                catDesc.textContent = data.desc;
-                catPrice.textContent = data.price;
-                catSpecs.innerHTML = data.specs.map(spec => `<li>${spec}</li>`).join('');
-            }
+            requestRideBtn.textContent = `Confirmar ${catName} • R$ ${price}`;
+            co2RideSave.textContent = co2Map[cat] || "2.0 kg";
         });
     });
 
-    // 2. Simulador de Impacto Ambiental (CO2)
-    const kmInput = document.getElementById('kmInput');
-    const kmValue = document.getElementById('kmValue');
-    const co2Saved = document.getElementById('co2Saved');
-    const treesSaved = document.getElementById('treesSaved');
+    // 3. Simulação de Solicitação de Corrida (Animação de Busca)
+    const driverStatusCard = document.getElementById('driverStatusCard');
+    const cancelRideBtn = document.getElementById('cancelRideBtn');
 
-    if (kmInput) {
-        kmInput.addEventListener('input', (e) => {
-            const km = parseInt(e.target.value);
-            kmValue.textContent = `${km} KM/dia`;
+    requestRideBtn.addEventListener('click', () => {
+        requestRideBtn.disabled = true;
+        requestRideBtn.textContent = "Procurando motorista VerdeGO...";
+        requestRideBtn.classList.add('opacity-75', 'animate-pulse');
 
-            // Cálculo aproximado: 120g CO2 salvas por km rodado
-            const co2Kg = ((km * 30 * 0.12)).toFixed(1);
-            const trees = Math.round(co2Kg / 0.15);
+        setTimeout(() => {
+            requestRideBtn.disabled = false;
+            requestRideBtn.classList.remove('opacity-75', 'animate-pulse');
+            requestRideBtn.textContent = "Viagem em Andamento";
+            
+            // Exibe o Card do Motorista no Mapa
+            driverStatusCard.classList.remove('hidden');
 
-            co2Saved.textContent = co2Kg;
-            treesSaved.textContent = trees;
-        });
-    }
+            // Desenha linha simulada de rota no mapa
+            const routeCoordinates = [
+                [-23.561684, -46.655981],
+                [-23.5590, -46.6580]
+            ];
+            const polyline = L.polyline(routeCoordinates, { color: '#00FF66', weight: 4, dashArray: '8, 8' }).addTo(map);
+            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
 
-    // 3. Alternador "Modo VerdeGO Simples" (Acessibilidade)
-    const toggleSimpleModeBtn = document.getElementById('toggleSimpleMode');
-    const simpleBtnText = document.getElementById('simpleBtnText');
+        }, 2000);
+    });
 
-    if (toggleSimpleModeBtn) {
-        toggleSimpleModeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('modo-simples');
-            const isSimple = document.body.classList.contains('modo-simples');
+    cancelRideBtn.addEventListener('click', () => {
+        driverStatusCard.classList.add('hidden');
+        requestRideBtn.textContent = "Confirmar VerdeGO Go";
+    });
 
-            if (isSimple) {
-                simpleBtnText.textContent = "Modo Padrão";
-            } else {
-                simpleBtnText.textContent = "Modo VerdeGO Simples";
-            }
-        });
-    }
-
-    // 4. Modais (Suporte Humano e B2B)
+    // 4. Modal de Suporte Humano
     const supportModal = document.getElementById('supportModal');
     const openSupportBtn = document.getElementById('openSupportBtn');
     const closeSupportModal = document.getElementById('closeSupportModal');
@@ -109,12 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         closeSupportModal.addEventListener('click', () => supportModal.classList.add('hidden'));
     }
 
-    const b2bModal = document.getElementById('b2bModal');
-    const openB2BModal = document.getElementById('openB2BModal');
-    const closeB2BModal = document.getElementById('closeB2BModal');
-
-    if (openB2BModal && b2bModal && closeB2BModal) {
-        openB2BModal.addEventListener('click', () => b2bModal.classList.remove('hidden'));
-        closeB2BModal.addEventListener('click', () => b2bModal.classList.add('hidden'));
+    // 5. Modo Acessibilidade
+    const toggleSimpleModeBtn = document.getElementById('toggleSimpleMode');
+    if (toggleSimpleModeBtn) {
+        toggleSimpleModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('modo-simples');
+        });
     }
 });
