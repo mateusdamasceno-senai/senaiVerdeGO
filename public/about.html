@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre a VerdeGO! - Mobilidade Sustentável</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        verde: { DEFAULT: '#10B981', hover: '#059669', neon: '#00FF66', dark: '#064E3B' },
+                        space: { 800: '#111827', 900: '#0B0F19' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-space-900 text-slate-100 font-sans min-h-screen">
+
+    <!-- Header / Nav -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-space-900/90 border-b border-emerald-900/40">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-3xl font-extrabold tracking-wider text-emerald-400">
+                Verde<span class="text-verde-neon">GO!</span>
+            </a>
+            <nav class="flex items-center gap-6">
+                <a href="index.html" class="text-sm font-semibold hover:text-emerald-400 transition">📱 Pedir Corrida</a>
+                <a href="about.html" class="text-sm font-semibold text-emerald-400 border-b-2 border-emerald-400 pb-1">🏢 Sobre Nós</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-12 space-y-16">
+
+        <!-- Banner de Apresentação -->
+        <section class="text-center space-y-4">
+            <span class="bg-emerald-900/50 text-emerald-300 text-xs px-3 py-1 rounded-full border border-emerald-500/30">Mobilidade com Propósito</span>
+            <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200">
+                Reinventando o transporte urbano com emissão zero e suporte humano real.
+            </h1>
+            <p class="text-slate-300 max-w-3xl mx-auto text-lg">
+                A VerdeGO! nasceu para provar que conveniência, segurança e sustentabilidade podem caminhar juntas na mesma plataforma.
+            </p>
+        </section>
+
+        <!-- Como Funciona -->
+        <section class="grid md:grid-cols-3 gap-8">
+            <div class="bg-space-800 p-6 rounded-2xl border border-slate-700/80 space-y-3">
+                <div class="text-3xl">🔋</div>
+                <h3 class="text-xl font-bold text-emerald-400">100% Elétrico</h3>
+                <p class="text-sm text-slate-300">Frota composta exclusivamente por veículos elétricos recarregados com energia limpa de fontes renováveis.</p>
+            </div>
+            <div class="bg-space-800 p-6 rounded-2xl border border-slate-700/80 space-y-3">
+                <div class="text-3xl">🛡️</div>
+                <h3 class="text-xl font-bold text-emerald-400">Segurança ADAS</h3>
+                <p class="text-sm text-slate-300">Sensores de frenagem autônoma, manutenção de faixa e monitoramento contínuo em todas as viagens.</p>
+            </div>
+            <div class="bg-space-800 p-6 rounded-2xl border border-slate-700/80 space-y-3">
+                <div class="text-3xl">🤝</div>
+                <h3 class="text-xl font-bold text-emerald-400">Suporte Humano < 1 min</h3>
+                <p class="text-sm text-slate-300">Sem robôs travando seu atendimento. Conecte-se a uma pessoa de verdade em segundos a qualquer momento.</p>
+            </div>
+        </section>
+
+        <!-- As 4 Categorias e Frotas -->
+        <section class="space-y-8">
+            <h2 class="text-3xl font-bold text-emerald-400 text-center">Nossas Categorias e Veículos</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <!-- Go -->
+                <div class="bg-space-800 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">🟢 VerdeGO Go</h3>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Persona: Jairo</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Economia máxima e agilidade no trânsito urbano para deslocamentos diários.</p>
+                        <div class="text-xs text-emerald-400 font-semibold">Veículo Exemplo: BYD Dolphin Mini / Jac E-JS1</div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80" alt="BYD Dolphin" class="w-full h-40 object-cover rounded-xl mt-4 border border-slate-700">
+                </div>
+
+                <!-- Shield -->
+                <div class="bg-space-800 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">🛡️ VerdeGO Shield</h3>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Persona: Célia</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Espaço amplo, pontuação máxima em segurança e motoristas com verificação rigorosa.</p>
+                        <div class="text-xs text-emerald-400 font-semibold">Veículo Exemplo: BYD Yuan Plus / Nissan Leaf</div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80" alt="SUV Elétrico" class="w-full h-40 object-cover rounded-xl mt-4 border border-slate-700">
+                </div>
+
+                <!-- Executive -->
+                <div class="bg-space-800 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">💼 VerdeGO Executive</h3>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Persona: Otávio</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Sedans e SUVs de alto padrão para reuniões silenciosas e viagens corporativas.</p>
+                        <div class="text-xs text-emerald-400 font-semibold">Veículo Exemplo: BMW iX / Volvo XC40 Recharge</div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=600&q=80" alt="BMW iX" class="w-full h-40 object-cover rounded-xl mt-4 border border-slate-700">
+                </div>
+
+                <!-- Pet -->
+                <div class="bg-space-800 p-6 rounded-2xl border border-slate-700 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xl font-bold text-white">🐾 VerdeGO Pet & Eco</h3>
+                            <span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full font-bold">Persona: Alisson</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Equipado com capas protetoras higiênicas e cinto especial para transporte pet seguro.</p>
+                        <div class="text-xs text-emerald-400 font-semibold">Veículo Exemplo: Hyundai Kona Electric / BYD Song Plus</div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80" alt="Pet Amigável" class="w-full h-40 object-cover rounded-xl mt-4 border border-slate-700">
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Parceiros ESG -->
+        <section class="bg-space-800/50 p-8 rounded-2xl border border-emerald-500/30 text-center space-y-6">
+            <h2 class="text-2xl font-bold text-emerald-400">Parceiros Estratégicos & Compromisso ESG</h2>
+            <div class="flex flex-wrap justify-center items-center gap-10 opacity-80 text-xl font-extrabold text-slate-300">
+                <span>NATURA ESG</span>
+                <span>ZEE.DOG ECO</span>
+                <span>VOLVO RECHARGE</span>
+                <span>BMW i-SERIES</span>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+        © 2026 VerdeGO! Mobilidade Sustentável.
+    </footer>
+</body>
+</html>
