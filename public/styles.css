@@ -41,6 +41,13 @@
     color: #000;
 }
 
+/* Modal 360 / Detalhes do Carro */
+.car-gallery-img {
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
 /* Modo VerdeGO Simples (Acessibilidade) */
 body.modo-simples {
     background-color: #000000 !important;
