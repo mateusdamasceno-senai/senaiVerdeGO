@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VerdeGO! - Mobilidade Sustentável</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -12,28 +11,19 @@
             theme: {
                 extend: {
                     colors: {
-                        verde: {
-                            DEFAULT: '#10B981',
-                            hover: '#059669',
-                            neon: '#00FF66',
-                            dark: '#064E3B'
-                        },
-                        space: {
-                            800: '#111827',
-                            900: '#0B0F19'
-                        }
+                        verde: { DEFAULT: '#10B981', hover: '#059669', neon: '#00FF66', dark: '#064E3B' },
+                        space: { 800: '#111827', 900: '#0B0F19' }
                     }
                 }
             }
         }
     </script>
-    <!-- Leaflet CSS para o Mapa Estilo Uber -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-space-900 text-slate-100 font-sans min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- Painel Lateral Estilo Uber (Sidebar de Solicitação) -->
+    <!-- Sidebar de Solicitação Estilo Uber -->
     <aside class="w-full md:w-[420px] lg:w-[460px] bg-space-900 border-r border-slate-800 p-5 flex flex-col justify-between z-20 shrink-0 shadow-2xl h-screen overflow-y-auto">
         <div class="space-y-5">
             <!-- Header do App -->
@@ -41,12 +31,15 @@
                 <span class="text-2xl font-extrabold tracking-wider text-emerald-400">
                     Verde<span class="text-verde-neon">GO!</span>
                 </span>
-                <button id="toggleSimpleMode" class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-full font-medium hover:bg-emerald-900/50 transition">
-                    ♿ Modo Simples
-                </button>
+                <div class="flex items-center gap-2">
+                    <a href="about.html" class="text-xs text-slate-300 hover:text-emerald-400 font-semibold px-2 py-1">🏢 Sobre</a>
+                    <button id="toggleSimpleMode" class="text-xs bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-full font-medium hover:bg-emerald-900/50 transition">
+                        ♿ Modo Simples
+                    </button>
+                </div>
             </div>
 
-            <!-- Caixa de Busca de Destino (Estilo Uber) -->
+            <!-- Caixa de Busca de Destino -->
             <div class="bg-space-800 p-4 rounded-2xl border border-slate-700/80 space-y-3 relative shadow-inner">
                 <div class="flex items-center gap-3">
                     <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
@@ -59,121 +52,121 @@
                 </div>
             </div>
 
-            <!-- Seletor de Categorias Estilo Uber -->
+            <!-- Card Exibição Dinâmica da Foto e Modelo do Carro -->
+            <div id="selectedCarPreview" class="bg-space-800 p-3 rounded-xl border border-emerald-500/40 flex items-center gap-4">
+                <img id="previewCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-24 h-16 object-cover rounded-lg border border-slate-700" alt="Carro">
+                <div>
+                    <div id="previewCarModel" class="font-bold text-emerald-400 text-sm">BYD Dolphin Mini</div>
+                    <div id="previewCarSpec" class="text-xs text-slate-300">100% Elétrico • Autonomia 280km</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Persona atendida: Jairo</div>
+                </div>
+            </div>
+
+            <!-- Seletor de Categorias -->
             <div class="space-y-2">
                 <div class="text-xs uppercase tracking-wider text-slate-400 font-bold px-1">Escolha uma viagem</div>
                 <div class="space-y-2" id="rideList">
                     
-                    <!-- Opção 1: Go -->
-                    <div data-cat="go" data-price="24.50" class="ride-option active flex items-center justify-between p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer hover:border-emerald-400 transition">
+                    <div data-cat="go" data-price="24.50" data-model="BYD Dolphin Mini" data-spec="100% Elétrico • Hatch Compacto" data-img="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="ride-option active flex items-center justify-between p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer hover:border-emerald-400 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">🚗</span>
                             <div>
                                 <div class="font-bold text-slate-100 flex items-center gap-2">
-                                    VerdeGO Go <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Rápido</span>
+                                    VerdeGO Go <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">BYD Dolphin</span>
                                 </div>
-                                <div class="text-xs text-slate-400">3 min • Hatch Elétrico Compacto</div>
+                                <div class="text-xs text-slate-400">3 min • Acesso & Economia</div>
                             </div>
                         </div>
                         <div class="text-right">
                             <div class="font-extrabold text-emerald-400 text-lg">R$ 24,50</div>
-                            <div class="text-[10px] text-slate-400">Persona: Jairo</div>
                         </div>
                     </div>
 
-                    <!-- Opção 2: Shield -->
-                    <div data-cat="shield" data-price="38.90" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="shield" data-price="38.90" data-model="BYD Yuan Plus (SUV)" data-spec="Sensores ADAS • 5 Estrelas Crash Test" data-img="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">🛡️</span>
                             <div>
                                 <div class="font-bold text-slate-100">VerdeGO Shield</div>
-                                <div class="text-xs text-slate-400">5 min • SUV Amplo, ADAS Ativo</div>
+                                <div class="text-xs text-slate-400">5 min • BYD Yuan SUV</div>
                             </div>
                         </div>
                         <div class="text-right">
                             <div class="font-extrabold text-slate-200 text-lg">R$ 38,90</div>
-                            <div class="text-[10px] text-slate-400">Persona: Célia</div>
                         </div>
                     </div>
 
-                    <!-- Opção 3: Executive -->
-                    <div data-cat="exec" data-price="52.00" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="exec" data-price="52.00" data-model="BMW iX / Volvo XC40" data-spec="Premium Executive • Acústica Absoluta" data-img="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">💼</span>
                             <div>
                                 <div class="font-bold text-slate-100">VerdeGO Executive</div>
-                                <div class="text-xs text-slate-400">4 min • BMW iX / Volvo XC40</div>
+                                <div class="text-xs text-slate-400">4 min • BMW iX Premium</div>
                             </div>
                         </div>
                         <div class="text-right">
                             <div class="font-extrabold text-slate-200 text-lg">R$ 52,00</div>
-                            <div class="text-[10px] text-slate-400">Persona: Otávio</div>
                         </div>
                     </div>
 
-                    <!-- Opção 4: Pet & Eco -->
-                    <div data-cat="pet" data-price="31.20" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="pet" data-price="31.20" data-model="Hyundai Kona Pet Eco" data-spec="Capas Higiênicas • Cinto Pet" data-img="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">🐾</span>
                             <div>
                                 <div class="font-bold text-slate-100">VerdeGO Pet & Eco</div>
-                                <div class="text-xs text-slate-400">6 min • Adaptado para Pets</div>
+                                <div class="text-xs text-slate-400">6 min • Equipado para Pets</div>
                             </div>
                         </div>
                         <div class="text-right">
                             <div class="font-extrabold text-slate-200 text-lg">R$ 31,20</div>
-                            <div class="text-[10px] text-slate-400">Persona: Alisson</div>
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- Calculadora de Impacto Ecológico Rápida -->
+            <!-- Medidor de CO2 da Viagem -->
             <div class="bg-space-800/60 p-3.5 rounded-xl border border-emerald-900/40 flex items-center justify-between">
                 <div>
-                    <div class="text-xs text-slate-400">Impacto Positivo da Viagem</div>
+                    <div class="text-xs text-slate-400">Impacto da Viagem</div>
                     <div class="text-sm font-bold text-emerald-400 flex items-center gap-1">
                         🌱 <span id="co2RideSave">1.8 kg</span> de CO₂ evitado
                     </div>
                 </div>
-                <button id="openImpactModal" class="text-xs text-emerald-300 underline font-semibold">Simular Mês</button>
+                <span class="text-xs text-slate-400">100% elétrico</span>
             </div>
         </div>
 
-        <!-- Botão Principal de Solicitação -->
+        <!-- Botão de Confirmação -->
         <div class="pt-4 space-y-3">
             <button id="requestRideBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-space-900 font-extrabold py-4 rounded-xl text-lg transition shadow-xl transform active:scale-98">
-                Confirmar VerdeGO Go
+                Confirmar VerdeGO Go • R$ 24,50
             </button>
             
             <div class="flex justify-between items-center text-xs text-slate-400">
                 <button id="openSupportBtn" class="flex items-center gap-1 hover:text-emerald-400">
                     <span class="w-2 h-2 rounded-full bg-verde-neon animate-pulse"></span> Apoio Humano (< 1 min)
                 </button>
-                <button id="openB2BBtn" class="hover:text-emerald-400">Modo Corporativo B2B</button>
+                <a href="about.html" class="hover:text-emerald-400">Conheça a Empresa</a>
             </div>
         </div>
     </aside>
 
-    <!-- Área do Mapa Interativo (Uber Style Canvas) -->
+    <!-- Área do Mapa -->
     <main class="flex-1 h-[50vh] md:h-screen relative bg-slate-900">
         <div id="map" class="w-full h-full"></div>
 
-        <!-- Card de Status do Motorista (Invisível até solicitar) -->
+        <!-- Card de Status do Motorista + Carro Escolhido -->
         <div id="driverStatusCard" class="hidden absolute top-5 left-5 right-5 md:left-auto md:right-5 md:w-96 bg-space-900/95 backdrop-blur-md p-5 rounded-2xl border border-emerald-500/40 shadow-2xl z-[1000] space-y-4">
             <div class="flex items-center justify-between">
                 <div>
                     <div class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Motorista a Caminho</div>
                     <div class="text-xl font-extrabold text-white">Carlos Silva 🛡️</div>
-                    <div class="text-xs text-slate-400">Volvo XC40 Elétrico • ABC-4E20</div>
+                    <div id="statusCarModel" class="text-xs text-slate-300 font-bold">BYD Dolphin Mini • ABC-4E20</div>
                 </div>
-                <div class="w-12 h-12 rounded-full bg-emerald-900/60 border border-emerald-400 flex items-center justify-center text-2xl font-bold">
-                    👨‍✈️
-                </div>
+                <img id="statusCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-16 h-12 object-cover rounded-lg border border-slate-700" alt="Carro">
             </div>
 
-            <!-- Telemetria ADAS ao Vivo -->
+            <!-- Telemetria ADAS -->
             <div class="bg-space-800 p-3 rounded-xl border border-slate-700 space-y-2 text-xs">
                 <div class="flex justify-between">
                     <span class="text-slate-400">Sensores ADAS</span>
@@ -191,25 +184,33 @@
         </div>
     </main>
 
-    <!-- Modais (Atendimento Humano, B2B e Calculadora) -->
+    <!-- Modal de Assistente Humano Interativo -->
     <div id="supportModal" class="fixed inset-0 bg-space-900/80 backdrop-blur-sm z-[2000] hidden flex items-center justify-center p-4">
         <div class="bg-space-800 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-                <h3 class="font-bold text-emerald-400 text-lg">Central de Atendimento Humano</h3>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-verde-neon animate-ping"></span>
+                    <h3 class="font-bold text-emerald-400 text-lg">Atendimento Humano VerdeGO!</h3>
+                </div>
                 <button id="closeSupportModal" class="text-slate-400 hover:text-slate-200">✕</button>
             </div>
-            <div class="bg-space-900 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
-                <span class="text-emerald-400 font-bold block mb-1">Atendente Gabriel</span>
-                "Olá! Estou acompanhando sua chamada em tempo real. Precisa de suporte na viagem?"
+            
+            <!-- Histórico do Chat -->
+            <div id="chatHistory" class="space-y-3 h-60 overflow-y-auto p-2 bg-space-900 rounded-xl border border-slate-800 text-xs">
+                <div class="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-xl text-slate-200">
+                    <span class="text-emerald-400 font-bold block mb-1">Atendente Gabriel (VerdeGO Support)</span>
+                    "Olá! Sou o Gabriel da equipe de suporte humano da VerdeGO!. Como posso te ajudar na sua corrida hoje?"
+                </div>
             </div>
-            <div class="flex gap-2">
-                <input type="text" placeholder="Digite sua dúvida..." class="flex-1 bg-space-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none">
-                <button class="bg-emerald-500 text-space-900 font-bold px-4 py-2 rounded-xl text-sm">Enviar</button>
-            </div>
+
+            <!-- Input do Chat -->
+            <form id="chatForm" class="flex gap-2">
+                <input type="text" id="chatInput" placeholder="Digite sua mensagem..." required class="flex-1 bg-space-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-space-900 font-bold px-4 py-2 rounded-xl text-sm">Enviar</button>
+            </form>
         </div>
     </div>
 
-    <!-- Leaflet JS para carregar o Mapa -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="app.js"></script>
 </body>
