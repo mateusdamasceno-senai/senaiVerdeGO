@@ -23,11 +23,20 @@
 </head>
 <body class="bg-space-900 text-slate-100 font-sans min-h-screen flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- Sidebar de Solicitação Estilo Uber -->
-    <aside class="w-full md:w-[420px] lg:w-[460px] bg-space-900 border-r border-slate-800 p-5 flex flex-col justify-between z-20 shrink-0 shadow-2xl h-screen overflow-y-auto">
-        <div class="space-y-5">
+    <!-- Sidebar do App estilo Uber VerdeGO! -->
+    <aside class="w-full md:w-[440px] lg:w-[480px] bg-space-900 border-r border-slate-800 p-5 flex flex-col justify-between z-20 shrink-0 shadow-2xl h-screen overflow-y-auto">
+        <div class="space-y-4">
+            
+            <!-- Banner de CO2 Global ao Vivo -->
+            <div class="bg-emerald-950/80 border border-emerald-500/40 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                <span class="text-slate-300 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-verde-neon animate-ping"></span> CO₂ Evitado Hoje:
+                </span>
+                <span id="globalCo2Counter" class="font-extrabold text-verde-neon text-sm font-mono">14.829,4 kg</span>
+            </div>
+
             <!-- Header do App -->
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <span class="text-2xl font-extrabold tracking-wider text-emerald-400">
                     Verde<span class="text-verde-neon">GO!</span>
                 </span>
@@ -39,114 +48,112 @@
                 </div>
             </div>
 
-            <!-- Caixa de Busca de Destino -->
+            <!-- Alternador de Perfil: Pessoal vs Corporativo (B2B) -->
+            <div class="flex bg-space-800 p-1 rounded-xl border border-slate-700/80 text-xs">
+                <button id="btnProfilePersonal" class="flex-1 py-1.5 rounded-lg font-bold bg-emerald-500 text-space-900 transition">📱 Pessoal</button>
+                <button id="btnProfileB2B" class="flex-1 py-1.5 rounded-lg font-bold text-slate-400 hover:text-white transition">💼 B2B (Empresa)</button>
+            </div>
+
+            <!-- Busca de Endereços com Autocomplete Real -->
             <div class="bg-space-800 p-4 rounded-2xl border border-slate-700/80 space-y-3 relative shadow-inner">
                 <div class="flex items-center gap-3">
                     <span class="w-3 h-3 rounded-full bg-emerald-400 shrink-0"></span>
-                    <input type="text" id="originInput" value="Seu local atual" readonly class="w-full bg-transparent text-sm font-semibold text-slate-200 focus:outline-none">
+                    <input type="text" id="originInput" value="Avenida Paulista, São Paulo" class="w-full bg-transparent text-sm font-semibold text-slate-200 focus:outline-none">
                 </div>
                 <div class="border-t border-slate-700/60 my-1"></div>
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 relative">
                     <span class="w-3 h-3 rounded-sm bg-verde-neon shrink-0"></span>
-                    <input type="text" id="destInput" placeholder="Para onde vamos?" value="Avenida Paulista, 1000 - SP" class="w-full bg-transparent text-sm font-semibold text-white focus:outline-none placeholder-slate-500">
+                    <input type="text" id="destInput" placeholder="Digite o destino..." value="Parque Ibirapuera, São Paulo" autocomplete="off" class="w-full bg-transparent text-sm font-semibold text-white focus:outline-none placeholder-slate-500">
+                    <div id="autocompleteList" class="autocomplete-items hidden"></div>
                 </div>
             </div>
 
-            <!-- Card Exibição Dinâmica da Foto e Modelo do Carro -->
-            <div id="selectedCarPreview" class="bg-space-800 p-3 rounded-xl border border-emerald-500/40 flex items-center gap-4">
-                <img id="previewCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-24 h-16 object-cover rounded-lg border border-slate-700" alt="Carro">
-                <div>
-                    <div id="previewCarModel" class="font-bold text-emerald-400 text-sm">BYD Dolphin Mini</div>
-                    <div id="previewCarSpec" class="text-xs text-slate-300">100% Elétrico • Autonomia 280km</div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">Persona atendida: Jairo</div>
+            <!-- Ficha 360° do Veículo Selecionado -->
+            <div id="selectedCarPreview" class="bg-space-800 p-3 rounded-xl border border-emerald-500/40 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <img id="previewCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-20 h-14 object-cover rounded-lg border border-slate-700" alt="Carro">
+                    <div>
+                        <div id="previewCarModel" class="font-bold text-emerald-400 text-sm">BYD Dolphin Mini</div>
+                        <div id="previewCarSpec" class="text-[11px] text-slate-300">100% Elétrico • Hatch Compacto</div>
+                        <div id="previewBattery" class="text-[10px] text-verde-neon font-mono mt-0.5">🔋 Bateria: 92% • Autonomia: 280km</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Seletor de Categorias -->
+            <!-- Lista de Categorias Estilo Uber -->
             <div class="space-y-2">
-                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold px-1">Escolha uma viagem</div>
+                <div class="text-xs uppercase tracking-wider text-slate-400 font-bold px-1 flex justify-between">
+                    <span>Escolha a Categoria</span>
+                    <span id="tripDistance" class="text-emerald-400">4.2 km</span>
+                </div>
                 <div class="space-y-2" id="rideList">
                     
-                    <div data-cat="go" data-price="24.50" data-model="BYD Dolphin Mini" data-spec="100% Elétrico • Hatch Compacto" data-img="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="ride-option active flex items-center justify-between p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer hover:border-emerald-400 transition">
+                    <div data-cat="go" data-base="12.00" data-perkm="3.00" data-model="BYD Dolphin Mini" data-spec="100% Elétrico • Hatch Compacto" data-battery="92%" data-autonomia="280km" data-img="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="ride-option active flex items-center justify-between p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition">
                         <div class="flex items-center gap-3">
-                            <span class="text-3xl">🚗</span>
+                            <span class="text-2xl">🚗</span>
                             <div>
-                                <div class="font-bold text-slate-100 flex items-center gap-2">
-                                    VerdeGO Go <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">BYD Dolphin</span>
-                                </div>
+                                <div class="font-bold text-slate-100 text-sm">VerdeGO Go</div>
                                 <div class="text-xs text-slate-400">3 min • Acesso & Economia</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-extrabold text-emerald-400 text-lg">R$ 24,50</div>
+                            <div class="font-extrabold text-emerald-400 text-base price-tag">R$ 24,60</div>
                         </div>
                     </div>
 
-                    <div data-cat="shield" data-price="38.90" data-model="BYD Yuan Plus (SUV)" data-spec="Sensores ADAS • 5 Estrelas Crash Test" data-img="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="shield" data-base="18.00" data-perkm="4.50" data-model="BYD Yuan Plus (SUV)" data-spec="Sensores ADAS • 5 Estrelas Crash Test" data-battery="88%" data-autonomia="380km" data-img="https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
-                            <span class="text-3xl">🛡️</span>
+                            <span class="text-2xl">🛡️</span>
                             <div>
-                                <div class="font-bold text-slate-100">VerdeGO Shield</div>
-                                <div class="text-xs text-slate-400">5 min • BYD Yuan SUV</div>
+                                <div class="font-bold text-slate-100 text-sm">VerdeGO Shield</div>
+                                <div class="text-xs text-slate-400">5 min • SUV Familiar ADAS</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-extrabold text-slate-200 text-lg">R$ 38,90</div>
+                            <div class="font-extrabold text-slate-200 text-base price-tag">R$ 36,90</div>
                         </div>
                     </div>
 
-                    <div data-cat="exec" data-price="52.00" data-model="BMW iX / Volvo XC40" data-spec="Premium Executive • Acústica Absoluta" data-img="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="exec" data-base="25.00" data-perkm="6.50" data-model="BMW iX / Volvo XC40" data-spec="Premium Executive • Silêncio Absoluto" data-battery="95%" data-autonomia="420km" data-img="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
-                            <span class="text-3xl">💼</span>
+                            <span class="text-2xl">💼</span>
                             <div>
-                                <div class="font-bold text-slate-100">VerdeGO Executive</div>
-                                <div class="text-xs text-slate-400">4 min • BMW iX Premium</div>
+                                <div class="font-bold text-slate-100 text-sm">VerdeGO Executive</div>
+                                <div class="text-xs text-slate-400">4 min • BMW / Volvo Premium</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-extrabold text-slate-200 text-lg">R$ 52,00</div>
+                            <div class="font-extrabold text-slate-200 text-base price-tag">R$ 52,30</div>
                         </div>
                     </div>
 
-                    <div data-cat="pet" data-price="31.20" data-model="Hyundai Kona Pet Eco" data-spec="Capas Higiênicas • Cinto Pet" data-img="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3.5 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div data-cat="pet" data-base="15.00" data-perkm="4.00" data-model="Hyundai Kona Pet Eco" data-spec="Capas Higiênicas • Cinto Pet" data-battery="85%" data-autonomia="310km" data-img="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=300&q=80" class="ride-option flex items-center justify-between p-3 rounded-xl border border-slate-800 bg-space-800/80 cursor-pointer hover:border-emerald-500/50 transition">
                         <div class="flex items-center gap-3">
-                            <span class="text-3xl">🐾</span>
+                            <span class="text-2xl">🐾</span>
                             <div>
-                                <div class="font-bold text-slate-100">VerdeGO Pet & Eco</div>
-                                <div class="text-xs text-slate-400">6 min • Equipado para Pets</div>
+                                <div class="font-bold text-slate-100 text-sm">VerdeGO Pet & Eco</div>
+                                <div class="text-xs text-slate-400">6 min • Adaptado para Pets</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-extrabold text-slate-200 text-lg">R$ 31,20</div>
+                            <div class="font-extrabold text-slate-200 text-base price-tag">R$ 31,80</div>
                         </div>
                     </div>
 
                 </div>
-            </div>
-
-            <!-- Medidor de CO2 da Viagem -->
-            <div class="bg-space-800/60 p-3.5 rounded-xl border border-emerald-900/40 flex items-center justify-between">
-                <div>
-                    <div class="text-xs text-slate-400">Impacto da Viagem</div>
-                    <div class="text-sm font-bold text-emerald-400 flex items-center gap-1">
-                        🌱 <span id="co2RideSave">1.8 kg</span> de CO₂ evitado
-                    </div>
-                </div>
-                <span class="text-xs text-slate-400">100% elétrico</span>
             </div>
         </div>
 
-        <!-- Botão de Confirmação -->
-        <div class="pt-4 space-y-3">
-            <button id="requestRideBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-space-900 font-extrabold py-4 rounded-xl text-lg transition shadow-xl transform active:scale-98">
-                Confirmar VerdeGO Go • R$ 24,50
+        <!-- Confirmar Corrida -->
+        <div class="pt-3 space-y-2">
+            <button id="requestRideBtn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-space-900 font-extrabold py-3.5 rounded-xl text-base transition shadow-xl glow-neon">
+                Confirmar VerdeGO Go • R$ 24,60
             </button>
-            
             <div class="flex justify-between items-center text-xs text-slate-400">
                 <button id="openSupportBtn" class="flex items-center gap-1 hover:text-emerald-400">
                     <span class="w-2 h-2 rounded-full bg-verde-neon animate-pulse"></span> Apoio Humano (< 1 min)
                 </button>
-                <a href="about.html" class="hover:text-emerald-400">Conheça a Empresa</a>
+                <button id="shareTripBtn" class="hover:text-emerald-400">🔗 Compartilhar Rota</button>
             </div>
         </div>
     </aside>
@@ -155,7 +162,7 @@
     <main class="flex-1 h-[50vh] md:h-screen relative bg-slate-900">
         <div id="map" class="w-full h-full"></div>
 
-        <!-- Card de Status do Motorista + Carro Escolhido -->
+        <!-- Card de Corrida em Andamento -->
         <div id="driverStatusCard" class="hidden absolute top-5 left-5 right-5 md:left-auto md:right-5 md:w-96 bg-space-900/95 backdrop-blur-md p-5 rounded-2xl border border-emerald-500/40 shadow-2xl z-[1000] space-y-4">
             <div class="flex items-center justify-between">
                 <div>
@@ -166,15 +173,14 @@
                 <img id="statusCarImg" src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80" class="w-16 h-12 object-cover rounded-lg border border-slate-700" alt="Carro">
             </div>
 
-            <!-- Telemetria ADAS -->
-            <div class="bg-space-800 p-3 rounded-xl border border-slate-700 space-y-2 text-xs">
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Sensores ADAS</span>
-                    <span class="text-emerald-400 font-bold">🟢 Ativos</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">Tempo de Chegada</span>
+            <!-- Progresso da Corrida -->
+            <div class="space-y-1">
+                <div class="flex justify-between text-xs text-slate-400">
+                    <span>Chegada em</span>
                     <span id="etaTimer" class="text-verde-neon font-bold">3 min</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2">
+                    <div id="progressBar" class="bg-emerald-400 h-2 rounded-full transition-all duration-1000" style="width: 25%"></div>
                 </div>
             </div>
 
@@ -184,26 +190,24 @@
         </div>
     </main>
 
-    <!-- Modal de Assistente Humano Interativo -->
+    <!-- Modal Atendimento Humano Interativo -->
     <div id="supportModal" class="fixed inset-0 bg-space-900/80 backdrop-blur-sm z-[2000] hidden flex items-center justify-center p-4">
         <div class="bg-space-800 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                 <div class="flex items-center gap-2">
                     <span class="w-3 h-3 rounded-full bg-verde-neon animate-ping"></span>
-                    <h3 class="font-bold text-emerald-400 text-lg">Atendimento Humano VerdeGO!</h3>
+                    <h3 class="font-bold text-emerald-400 text-lg">Suporte Humano VerdeGO!</h3>
                 </div>
                 <button id="closeSupportModal" class="text-slate-400 hover:text-slate-200">✕</button>
             </div>
             
-            <!-- Histórico do Chat -->
             <div id="chatHistory" class="space-y-3 h-60 overflow-y-auto p-2 bg-space-900 rounded-xl border border-slate-800 text-xs">
                 <div class="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-xl text-slate-200">
-                    <span class="text-emerald-400 font-bold block mb-1">Atendente Gabriel (VerdeGO Support)</span>
-                    "Olá! Sou o Gabriel da equipe de suporte humano da VerdeGO!. Como posso te ajudar na sua corrida hoje?"
+                    <span class="text-emerald-400 font-bold block mb-1">Atendente Gabriel</span>
+                    "Olá! Estou acompanhando sua chamada ao vivo. Como posso te auxiliar agora?"
                 </div>
             </div>
 
-            <!-- Input do Chat -->
             <form id="chatForm" class="flex gap-2">
                 <input type="text" id="chatInput" placeholder="Digite sua mensagem..." required class="flex-1 bg-space-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
                 <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-space-900 font-bold px-4 py-2 rounded-xl text-sm">Enviar</button>
