@@ -1,0 +1,28 @@
+/* Transições suaves globais */
+* {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Modo VerdeGO Simples (Acessibilidade) */
+body.modo-simples {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    font-size: 1.25rem !important;
+}
+
+body.modo-simples button {
+    padding: 1rem 1.5rem !important;
+    font-size: 1.25rem !important;
+    border-width: 3px !important;
+    border-color: #00FF66 !important;
+}
+
+body.modo-simples .cat-btn {
+    height: auto !important;
+    min-height: 100px !important;
+}
+
+body.modo-simples #categoryDetailCard {
+    background-color: #111111 !important;
+    border: 3px solid #00FF66 !important;
+}
