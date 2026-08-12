@@ -23,20 +23,53 @@ document.addEventListener('DOMContentLoaded', () => {
         if(globalCo2Counter) globalCo2Counter.textContent = currentCo2.toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' kg';
     }, 2500);
 
-    // 2. Mapa Leaflet + Carros Animados
-    const map = L.map('map', { zoomControl: false }).setView([-23.561684, -46.655981], 14);
+    // 2. Mapa Leaflet Elegante + Modos HD
+    const originCoords = [-23.561684, -46.655981];
+    let destCoords = [-23.587416, -46.657634];
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+    const map = L.map('map', { zoomControl: false }).setView(originCoords, 14);
 
+    // Camadas de Mapa
+    const tilesDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+    const tilesLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+    const tilesSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+
+    tilesDark.addTo(map); // Padrão
+
+    // Alternar Estilos do Mapa
+    const btnDark = document.getElementById('mapStyleDark');
+    const btnLight = document.getElementById('mapStyleLight');
+    const btnSat = document.getElementById('mapStyleSat');
+
+    function setMapStyle(activeBtn, layer) {
+        [btnDark, btnLight, btnSat].forEach(b => {
+            b.classList.remove('bg-emerald-500', 'text-space-900');
+            b.classList.add('text-slate-300');
+        });
+        activeBtn.classList.add('bg-emerald-500', 'text-space-900');
+        activeBtn.classList.remove('text-slate-300');
+
+        map.removeLayer(tilesDark);
+        map.removeLayer(tilesLight);
+        map.removeLayer(tilesSat);
+        layer.addTo(map);
+    }
+
+    btnDark.addEventListener('click', () => setMapStyle(btnDark, tilesDark));
+    btnLight.addEventListener('click', () => setMapStyle(btnLight, tilesLight));
+    btnSat.addEventListener('click', () => setMapStyle(btnSat, tilesSat));
+
+    // Marcador do Passageiro com Efeito Glow
     const userIcon = L.divIcon({
         className: 'custom-user-pin',
-        html: `<div style="background-color: #10B981; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #00FF66; box-shadow: 0 0 10px #00FF66;"></div>`
+        html: `<div class="pulse-ring"></div><div style="background-color: #10B981; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #FFFFFF; box-shadow: 0 0 10px #00FF66;"></div>`
     });
-    let userMarker = L.marker([-23.561684, -46.655981], { icon: userIcon }).addTo(map);
+    let userMarker = L.marker(originCoords, { icon: userIcon }).addTo(map);
 
+    // Marcadores de Carros Flutuantes
     const carIcon = L.divIcon({
         className: 'custom-car-pin',
-        html: `<div style="font-size: 22px;">⚡🚗</div>`
+        html: `<div style="font-size: 24px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">🚗⚡</div>`
     });
 
     let liveCars = [
@@ -49,19 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
         c.marker = L.marker([c.lat, c.lng], { icon: carIcon }).addTo(map);
     });
 
+    // Animação de Vagando pela Cidade
     setInterval(() => {
-        liveCars.forEach(c => {
-            c.lat += (Math.random() - 0.5) * 0.002;
-            c.lng += (Math.random() - 0.5) * 0.002;
-            c.marker.setLatLng([c.lat, c.lng]);
-        });
-    }, 3000);
+        if(!isTripActive) {
+            liveCars.forEach(c => {
+                c.lat += (Math.random() - 0.5) * 0.0015;
+                c.lng += (Math.random() - 0.5) * 0.0015;
+                c.marker.setLatLng([c.lat, c.lng]);
+            });
+        }
+    }, 2500);
 
-    // 3. Autocomplete e Cálculo de Rota Real
+    // 3. Rota Inicial
+    let routePolyline = L.polyline([originCoords, destCoords], { color: '#00FF66', weight: 5, opacity: 0.8, dashArray: '10, 10' }).addTo(map);
+    map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
+
+    // Autocomplete e Rota Dinâmica
     const destInput = document.getElementById('destInput');
     const autocompleteList = document.getElementById('autocompleteList');
     const tripDistance = document.getElementById('tripDistance');
-    let routePolyline = null;
     let currentDistanceKm = 4.2;
 
     if(destInput) {
@@ -87,16 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             destInput.value = item.display_name.split(',')[0];
                             autocompleteList.classList.add('hidden');
                             
-                            const destLat = parseFloat(item.lat);
-                            const destLon = parseFloat(item.lon);
+                            destCoords = [parseFloat(item.lat), parseFloat(item.lon)];
                             
                             if(routePolyline) map.removeLayer(routePolyline);
                             
-                            const originCoords = userMarker.getLatLng();
-                            routePolyline = L.polyline([[originCoords.lat, originCoords.lng], [destLat, destLon]], { color: '#00FF66', weight: 4, dashArray: '8, 8' }).addTo(map);
-                            map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+                            routePolyline = L.polyline([originCoords, destCoords], { color: '#00FF66', weight: 5, opacity: 0.8, dashArray: '10, 10' }).addTo(map);
+                            map.fitBounds(routePolyline.getBounds(), { padding: [50, 50] });
 
-                            currentDistanceKm = (originCoords.distanceTo([destLat, destLon]) / 1000).toFixed(1);
+                            const distMeters = L.latLng(originCoords).distanceTo(L.latLng(destCoords));
+                            currentDistanceKm = (distMeters / 1000).toFixed(1);
                             if (currentDistanceKm < 1) currentDistanceKm = 1.5;
                             tripDistance.textContent = `${currentDistanceKm} km`;
                             
@@ -110,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. Categorias e Dados Dinâmicos
+    // 4. Categorias de Veículos
     const rideOptions = document.querySelectorAll('.ride-option');
     const requestRideBtn = document.getElementById('requestRideBtn');
     const previewCarImg = document.getElementById('previewCarImg');
@@ -173,7 +211,85 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 5. Modal Visualizador 360° do Veículo
+    // 5. Sistema de Animação Fluida de Corrida em Tempo Real
+    let isTripActive = false;
+    let animationInterval = null;
+    const driverStatusCard = document.getElementById('driverStatusCard');
+    const statusCarModel = document.getElementById('statusCarModel');
+    const statusCarImg = document.getElementById('statusCarImg');
+    const cancelRideBtn = document.getElementById('cancelRideBtn');
+    const progressBar = document.getElementById('progressBar');
+    const tripStatusLabel = document.getElementById('tripStatusLabel');
+
+    requestRideBtn.addEventListener('click', () => {
+        playAudioTone(900, 0.15);
+        requestRideBtn.disabled = true;
+        requestRideBtn.textContent = "Solicitando Motorista...";
+        
+        setTimeout(() => {
+            requestRideBtn.disabled = false;
+            requestRideBtn.textContent = "Corrida em Andamento";
+            statusCarModel.textContent = `${selectedCategory.model} • ABC-4E20`;
+            statusCarImg.src = selectedCategory.img;
+            driverStatusCard.classList.remove('hidden');
+            isTripActive = true;
+
+            // Iniciar Animação do Veículo ao longo da Rota
+            startCarAnimation();
+        }, 1200);
+    });
+
+    function startCarAnimation() {
+        const animatedCar = liveCars[0].marker;
+        let step = 0;
+        const totalSteps = 100;
+        
+        const startLat = originCoords[0];
+        const startLng = originCoords[1];
+        const endLat = destCoords[0];
+        const endLng = destCoords[1];
+
+        if(animationInterval) clearInterval(animationInterval);
+
+        tripStatusLabel.textContent = "Viagem Iniciada";
+
+        animationInterval = setInterval(() => {
+            step++;
+            const progress = step / totalSteps;
+            
+            // Interpolação Linear de Posição
+            const currentLat = startLat + (endLat - startLat) * progress;
+            const currentLng = startLng + (endLng - startLng) * progress;
+            
+            animatedCar.setLatLng([currentLat, currentLng]);
+            map.panTo([currentLat, currentLng], { animate: true, duration: 0.1 });
+
+            // Atualiza barra de progresso
+            if(progressBar) progressBar.style.width = `${progress * 100}%`;
+
+            if (step >= totalSteps) {
+                clearInterval(animationInterval);
+                tripStatusLabel.textContent = "Você Chegou ao Destino!";
+                playAudioTone(1200, 0.3);
+                setTimeout(() => {
+                    alert('🎉 Você chegou ao seu destino! Obrigado por viajar de forma 100% sustentável com a VerdeGO!.');
+                    driverStatusCard.classList.add('hidden');
+                    isTripActive = false;
+                    requestRideBtn.textContent = `Confirmar ${selectedCategory.name} • ${selectedCategory.price}`;
+                }, 1000);
+            }
+        }, 100);
+    }
+
+    cancelRideBtn.addEventListener('click', () => {
+        if(animationInterval) clearInterval(animationInterval);
+        isTripActive = false;
+        driverStatusCard.classList.add('hidden');
+        requestRideBtn.textContent = `Confirmar ${selectedCategory.name} • ${selectedCategory.price}`;
+        playAudioTone(300, 0.2);
+    });
+
+    // 6. Modal Visualizador 360° do Veículo
     const car360Modal = document.getElementById('car360Modal');
     const openCar360Btn = document.getElementById('openCar360Btn');
     const closeCar360Modal = document.getElementById('closeCar360Modal');
@@ -200,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         closeCar360ModalBtn.addEventListener('click', hide360);
     }
 
-    // 6. Compartilhar Rota
+    // 7. Compartilhar Rota & Perfil B2B
     const shareTripBtn = document.getElementById('shareTripBtn');
     if(shareTripBtn) {
         shareTripBtn.addEventListener('click', () => {
@@ -210,7 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 7. Alternador B2B
     const btnProfilePersonal = document.getElementById('btnProfilePersonal');
     const btnProfileB2B = document.getElementById('btnProfileB2B');
 
@@ -232,40 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 8. Solicitação de Corrida
-    const driverStatusCard = document.getElementById('driverStatusCard');
-    const statusCarModel = document.getElementById('statusCarModel');
-    const statusCarImg = document.getElementById('statusCarImg');
-    const cancelRideBtn = document.getElementById('cancelRideBtn');
-    const progressBar = document.getElementById('progressBar');
-
-    requestRideBtn.addEventListener('click', () => {
-        playAudioTone(900, 0.15);
-        requestRideBtn.disabled = true;
-        requestRideBtn.textContent = "Conectando ao veículo...";
-        
-        setTimeout(() => {
-            requestRideBtn.disabled = false;
-            requestRideBtn.textContent = "Em Andamento";
-            statusCarModel.textContent = `${selectedCategory.model} • ABC-4E20`;
-            statusCarImg.src = selectedCategory.img;
-            driverStatusCard.classList.remove('hidden');
-
-            let prog = 20;
-            const timer = setInterval(() => {
-                prog += 20;
-                if(progressBar) progressBar.style.width = `${prog}%`;
-                if (prog >= 100) clearInterval(timer);
-            }, 1000);
-        }, 1500);
-    });
-
-    cancelRideBtn.addEventListener('click', () => {
-        driverStatusCard.classList.add('hidden');
-        requestRideBtn.textContent = `Confirmar ${selectedCategory.name} • ${selectedCategory.price}`;
-    });
-
-    // 9. Chat Humano Interativo
+    // 8. Chat Humano Interativo
     const supportModal = document.getElementById('supportModal');
     const openSupportBtn = document.getElementById('openSupportBtn');
     const closeSupportModal = document.getElementById('closeSupportModal');
@@ -301,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 10. Acessibilidade
+    // 9. Modo Acessibilidade Simples
     const toggleSimpleModeBtn = document.getElementById('toggleSimpleMode');
     if(toggleSimpleModeBtn) {
         toggleSimpleModeBtn.addEventListener('click', () => document.body.classList.toggle('modo-simples'));
