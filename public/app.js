@@ -1,103 +1,234 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 1. Mapa Leaflet (Estilo Dark Uber)
+    // 0. Gerador de Som Web Audio API (Feedback Sonoro)
+    function playAudioTone(freq = 600, duration = 0.1) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+            osc.stop(ctx.currentTime + duration);
+        } catch(e){}
+    }
+
+    // 1. Contador Vivo de CO2 Global
+    let currentCo2 = 14829.4;
+    const globalCo2Counter = document.getElementById('globalCo2Counter');
+    setInterval(() => {
+        currentCo2 += (Math.random() * 0.3);
+        if(globalCo2Counter) globalCo2Counter.textContent = currentCo2.toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' kg';
+    }, 2500);
+
+    // 2. Mapa Leaflet + Animação dos Carrinhos
     const map = L.map('map', { zoomControl: false }).setView([-23.561684, -46.655981], 14);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        attribution: '&copy; CARTO'
-    }).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
 
     const userIcon = L.divIcon({
         className: 'custom-user-pin',
-        html: `<div style="background-color: #10B981; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #00FF66; box-shadow: 0 0 10px #00FF66;"></div>`,
-        iconSize: [16, 16]
+        html: `<div style="background-color: #10B981; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #00FF66; box-shadow: 0 0 10px #00FF66;"></div>`
     });
-    L.marker([-23.561684, -46.655981], { icon: userIcon }).addTo(map);
+    let userMarker = L.marker([-23.561684, -46.655981], { icon: userIcon }).addTo(map);
 
+    // Carros animados no mapa
     const carIcon = L.divIcon({
         className: 'custom-car-pin',
-        html: `<div style="font-size: 20px;">⚡🚗</div>`,
-        iconSize: [24, 24]
+        html: `<div style="font-size: 22px;">⚡🚗</div>`
     });
 
-    [
-        { lat: -23.5590, lng: -46.6580 },
-        { lat: -23.5640, lng: -46.6520 },
-        { lat: -23.5600, lng: -46.6510 }
-    ].forEach(c => L.marker([c.lat, c.lng], { icon: carIcon }).addTo(map));
+    let liveCars = [
+        { id: 1, lat: -23.5590, lng: -46.6580, marker: null },
+        { id: 2, lat: -23.5640, lng: -46.6520, marker: null },
+        { id: 3, lat: -23.5600, lng: -46.6510, marker: null }
+    ];
 
-    // 2. Troca de Categoria e Atualização de Foto e Modelo do Carro
+    liveCars.forEach(c => {
+        c.marker = L.marker([c.lat, c.lng], { icon: carIcon }).addTo(map);
+    });
+
+    // Mover os carros aleatoriamente a cada 3 segundos
+    setInterval(() => {
+        liveCars.forEach(c => {
+            c.lat += (Math.random() - 0.5) * 0.002;
+            c.lng += (Math.random() - 0.5) * 0.002;
+            c.marker.setLatLng([c.lat, c.lng]);
+        });
+    }, 3000);
+
+    // 3. Autocomplete de Endereço Real via Nominatim API
+    const destInput = document.getElementById('destInput');
+    const autocompleteList = document.getElementById('autocompleteList');
+    const tripDistance = document.getElementById('tripDistance');
+    let routePolyline = null;
+    let currentDistanceKm = 4.2;
+
+    if(destInput) {
+        destInput.addEventListener('input', async (e) => {
+            const query = e.target.value;
+            if (query.length < 3) {
+                autocompleteList.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=4`);
+                const data = await res.json();
+
+                autocompleteList.innerHTML = '';
+                if(data.length > 0) {
+                    autocompleteList.classList.remove('hidden');
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.textContent = item.display_name;
+                        div.addEventListener('click', () => {
+                            destInput.value = item.display_name.split(',')[0];
+                            autocompleteList.classList.add('hidden');
+                            
+                            // Atualizar local e rota no Mapa
+                            const destLat = parseFloat(item.lat);
+                            const destLon = parseFloat(item.lon);
+                            
+                            if(routePolyline) map.removeLayer(routePolyline);
+                            
+                            const originCoords = userMarker.getLatLng();
+                            routePolyline = L.polyline([[originCoords.lat, originCoords.lng], [destLat, destLon]], { color: '#00FF66', weight: 4, dashArray: '8, 8' }).addTo(map);
+                            map.fitBounds(routePolyline.getBounds(), { padding: [40, 40] });
+
+                            // Recalcular Distância e Preços
+                            currentDistanceKm = (originCoords.distanceTo([destLat, destLon]) / 1000).toFixed(1);
+                            if (currentDistanceKm < 1) currentDistanceKm = 1.5;
+                            tripDistance.textContent = `${currentDistanceKm} km`;
+                            
+                            updatePrices();
+                            playAudioTone(800, 0.1);
+                        });
+                        autocompleteList.appendChild(div);
+                    });
+                }
+            } catch(err) {}
+        });
+    }
+
+    // 4. Seleção de Categoria e Ficha do Veículo
     const rideOptions = document.querySelectorAll('.ride-option');
     const requestRideBtn = document.getElementById('requestRideBtn');
     const previewCarImg = document.getElementById('previewCarImg');
     const previewCarModel = document.getElementById('previewCarModel');
     const previewCarSpec = document.getElementById('previewCarSpec');
-    const co2RideSave = document.getElementById('co2RideSave');
+    const previewBattery = document.getElementById('previewBattery');
 
-    let currentSelectedCar = {
+    let selectedCategory = {
+        name: "VerdeGO Go",
+        price: "24,60",
         model: "BYD Dolphin Mini",
         img: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=300&q=80"
     };
 
-    rideOptions.forEach(option => {
-        option.addEventListener('click', () => {
+    function updatePrices() {
+        rideOptions.forEach(opt => {
+            const base = parseFloat(opt.getAttribute('data-base'));
+            const perkm = parseFloat(opt.getAttribute('data-perkm'));
+            const price = (base + (perkm * currentDistanceKm)).toFixed(2).replace('.', ',');
+            opt.querySelector('.price-tag').textContent = `R$ ${price}`;
+            
+            if(opt.classList.contains('active')) {
+                const catName = opt.querySelector('.font-bold').textContent;
+                selectedCategory.price = price;
+                requestRideBtn.textContent = `Confirmar ${catName} • R$ ${price}`;
+            }
+        });
+    }
+
+    rideOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+            playAudioTone(500, 0.08);
             rideOptions.forEach(o => {
                 o.classList.remove('active', 'border-2', 'border-emerald-500', 'bg-emerald-950/30');
                 o.classList.add('border', 'border-slate-800', 'bg-space-800/80');
             });
+            opt.classList.remove('border', 'border-slate-800', 'bg-space-800/80');
+            opt.classList.add('active', 'border-2', 'border-emerald-500', 'bg-emerald-950/30');
 
-            option.classList.remove('border', 'border-slate-800', 'bg-space-800/80');
-            option.classList.add('active', 'border-2', 'border-emerald-500', 'bg-emerald-950/30');
-
-            const price = option.getAttribute('data-price');
-            const model = option.getAttribute('data-model');
-            const spec = option.getAttribute('data-spec');
-            const img = option.getAttribute('data-img');
-            const catName = option.querySelector('.font-bold').childNodes[0].textContent.trim();
-
-            currentSelectedCar = { model, img };
+            const model = opt.getAttribute('data-model');
+            const spec = opt.getAttribute('data-spec');
+            const battery = opt.getAttribute('data-battery');
+            const autonomia = opt.getAttribute('data-autonomia');
+            const img = opt.getAttribute('data-img');
+            const catName = opt.querySelector('.font-bold').textContent;
+            const price = opt.querySelector('.price-tag').textContent;
 
             previewCarImg.src = img;
             previewCarModel.textContent = model;
             previewCarSpec.textContent = spec;
-            requestRideBtn.textContent = `Confirmar ${catName} • R$ ${price}`;
-            co2RideSave.textContent = (parseFloat(price) * 0.08).toFixed(1) + " kg";
+            previewBattery.textContent = `🔋 Bateria: ${battery} • Autonomia: ${autonomia}`;
+            requestRideBtn.textContent = `Confirmar ${catName} • ${price}`;
+
+            selectedCategory = { name: catName, price, model, img };
         });
     });
 
-    // 3. Solicitação de Corrida com Animação e Status do Carro
+    // 5. Alternador Pessoal / B2B
+    const btnProfilePersonal = document.getElementById('btnProfilePersonal');
+    const btnProfileB2B = document.getElementById('btnProfileB2B');
+
+    if(btnProfilePersonal && btnProfileB2B) {
+        btnProfileB2B.addEventListener('click', () => {
+            playAudioTone(700, 0.1);
+            btnProfileB2B.classList.add('bg-emerald-500', 'text-space-900');
+            btnProfileB2B.classList.remove('text-slate-400');
+            btnProfilePersonal.classList.remove('bg-emerald-500', 'text-space-900');
+            btnProfilePersonal.classList.add('text-slate-400');
+            alert('Modo Corporativo Ativado: Faturamento automático via VerdeGO Business para relatórios ESG da sua empresa.');
+        });
+        btnProfilePersonal.addEventListener('click', () => {
+            playAudioTone(400, 0.1);
+            btnProfilePersonal.classList.add('bg-emerald-500', 'text-space-900');
+            btnProfilePersonal.classList.remove('text-slate-400');
+            btnProfileB2B.classList.remove('bg-emerald-500', 'text-space-900');
+            btnProfileB2B.classList.add('text-slate-400');
+        });
+    }
+
+    // 6. Solicitação e Animação da Corrida
     const driverStatusCard = document.getElementById('driverStatusCard');
     const statusCarModel = document.getElementById('statusCarModel');
     const statusCarImg = document.getElementById('statusCarImg');
     const cancelRideBtn = document.getElementById('cancelRideBtn');
+    const progressBar = document.getElementById('progressBar');
 
     requestRideBtn.addEventListener('click', () => {
+        playAudioTone(900, 0.15);
         requestRideBtn.disabled = true;
-        requestRideBtn.textContent = "Localizando motorista...";
-        requestRideBtn.classList.add('opacity-75', 'animate-pulse');
-
+        requestRideBtn.textContent = "Conectando ao veículo...";
+        
         setTimeout(() => {
             requestRideBtn.disabled = false;
-            requestRideBtn.classList.remove('opacity-75', 'animate-pulse');
-            requestRideBtn.textContent = "Viagem Confirmada!";
-
-            statusCarModel.textContent = `${currentSelectedCar.model} • ABC-4E20`;
-            statusCarImg.src = currentSelectedCar.img;
+            requestRideBtn.textContent = "Em Andamento";
+            statusCarModel.textContent = `${selectedCategory.model} • ABC-4E20`;
+            statusCarImg.src = selectedCategory.img;
             driverStatusCard.classList.remove('hidden');
 
-            const routeCoordinates = [[-23.561684, -46.655981], [-23.5590, -46.6580]];
-            const polyline = L.polyline(routeCoordinates, { color: '#00FF66', weight: 4, dashArray: '8, 8' }).addTo(map);
-            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+            // Animação da Barra de Progresso
+            let prog = 20;
+            const timer = setInterval(() => {
+                prog += 20;
+                if(progressBar) progressBar.style.width = `${prog}%`;
+                if (prog >= 100) clearInterval(timer);
+            }, 1000);
         }, 1500);
     });
 
     cancelRideBtn.addEventListener('click', () => {
         driverStatusCard.classList.add('hidden');
-        requestRideBtn.textContent = "Confirmar VerdeGO Go • R$ 24,50";
+        requestRideBtn.textContent = `Confirmar ${selectedCategory.name} • ${selectedCategory.price}`;
     });
 
-    // 4. Assistente Humano Interativo (Chat)
+    // 7. Chat Humano Interativo
     const supportModal = document.getElementById('supportModal');
     const openSupportBtn = document.getElementById('openSupportBtn');
     const closeSupportModal = document.getElementById('closeSupportModal');
@@ -105,48 +236,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chatInput');
     const chatHistory = document.getElementById('chatHistory');
 
-    if (openSupportBtn && supportModal && closeSupportModal) {
-        openSupportBtn.addEventListener('click', () => supportModal.classList.remove('hidden'));
-        closeSupportModal.addEventListener('click', () => supportModal.classList.add('hidden'));
-    }
+    if(openSupportBtn) openSupportBtn.addEventListener('click', () => supportModal.classList.remove('hidden'));
+    if(closeSupportModal) closeSupportModal.addEventListener('click', () => supportModal.classList.add('hidden'));
 
-    if (chatForm) {
+    if(chatForm) {
         chatForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = chatInput.value.trim();
-            if (!text) return;
+            if(!text) return;
 
-            // Mensagem do Usuário
-            const userMsg = document.createElement('div');
-            userMsg.className = "bg-space-800 border border-slate-700 p-2.5 rounded-xl text-right text-slate-100";
-            userMsg.textContent = text;
-            chatHistory.appendChild(userMsg);
+            const uMsg = document.createElement('div');
+            uMsg.className = "bg-space-800 border border-slate-700 p-2.5 rounded-xl text-right text-slate-100";
+            uMsg.textContent = text;
+            chatHistory.appendChild(uMsg);
 
             chatInput.value = '';
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
-            // Resposta Automática Simula Atendente Humano
             setTimeout(() => {
-                const agentMsg = document.createElement('div');
-                agentMsg.className = "bg-emerald-950/60 border border-emerald-500/30 p-2.5 rounded-xl text-slate-200";
-                
-                const agentResponses = [
-                    "Entendido! Estou acompanhando a localização do seu veículo no sistema agora mesmo.",
-                    "Pode ficar tranquilo(a), os sensores ADAS e o motorista estão com status 100% verificado.",
-                    "Precisa que eu envie alguma instrução ao motorista sobre o local de embarque?"
-                ];
-                const randomResponse = agentResponses[Math.floor(Math.random() * agentResponses.length)];
-                
-                agentMsg.innerHTML = `<span class="text-emerald-400 font-bold block mb-0.5">Atendente Gabriel</span>"${randomResponse}"`;
-                chatHistory.appendChild(agentMsg);
+                playAudioTone(1000, 0.1);
+                const aMsg = document.createElement('div');
+                aMsg.className = "bg-emerald-950/60 border border-emerald-500/30 p-2.5 rounded-xl text-slate-200";
+                aMsg.innerHTML = `<span class="text-emerald-400 font-bold block mb-0.5">Atendente Gabriel</span>"Perfeito! Estou monitorando seu percurso com telemetria ADAS em tempo real."`;
+                chatHistory.appendChild(aMsg);
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }, 1000);
         });
     }
 
-    // 5. Modo Acessibilidade Simples
+    // 8. Modo Acessibilidade
     const toggleSimpleModeBtn = document.getElementById('toggleSimpleMode');
-    if (toggleSimpleModeBtn) {
+    if(toggleSimpleModeBtn) {
         toggleSimpleModeBtn.addEventListener('click', () => document.body.classList.toggle('modo-simples'));
     }
 });
