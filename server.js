@@ -4,15 +4,18 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Servir arquivos estáticos da pasta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
+// Define o caminho absoluto para a pasta 'public'
+const publicPath = path.join(__dirname, 'public');
 
-// Rota principal da aplicação
+// Servir arquivos estáticos da pasta 'public'
+app.use(express.static(publicPath));
+
+// Rota principal servindo o index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// Endpoint de simulação da API para status do sistema
+// Endpoint de simulação da API
 app.get('/api/status', (req, res) => {
     res.json({
         status: 'online',
@@ -21,6 +24,11 @@ app.get('/api/status', (req, res) => {
         humanSupportWaitTime: '< 1 min',
         co2SavedTotalKg: 14250
     });
+});
+
+// Trata caso qualquer outra rota seja acessada e não encontre o arquivo
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
